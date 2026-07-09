@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Study Helper</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app">
+
+  <!-- Binder tab navigation -->
+  <nav class="tabs" aria-label="Study tools">
+    <div class="tabs__spine"></div>
+    <button class="tab active" data-panel="summarize">
+      <span class="tab__index">01</span>
+      <span class="tab__label">Summarize</span>
+    </button>
+    <button class="tab" data-panel="quiz">
+      <span class="tab__index">02</span>
+      <span class="tab__label">Quiz &amp; Cards</span>
+    </button>
+    <button class="tab" data-panel="chat">
+      <span class="tab__index">03</span>
+      <span class="tab__label">Tutor Chat</span>
+    </button>
+    <button class="tab" data-panel="explain">
+      <span class="tab__index">04</span>
+      <span class="tab__label">Explain</span>
+    </button>
+  </nav>
+
+  <!-- Notebook page -->
+  <main class="page">
+    <div class="page__holes" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="page__margin" aria-hidden="true"></div>
+
+    <div class="page__content">
+
+      <header class="masthead">
+        <h1>AI Study Helper</h1>
+        <h5>by pawan_paudyal</h5>
+        <p class="masthead__sub">Summarize. Quiz yourself. Ask questions. Understand anything.</p>
+      </header>
+
+      <!-- === Panel 1: Summarize === -->
+      <section class="panel active" id="panel-summarize">
+        <h2><span class="eyebrow">01 — Notes &amp; PDF Summarizer</span></h2>
+        <p class="panel__hint">Paste your notes, or upload a PDF / DOCX / TXT file. You'll get a structured summary with key points.</p>
+
+        <form id="form-summarize" class="tool-form">
+          <label for="summarize-text">Paste text</label>
+          <textarea id="summarize-text" placeholder="Paste your notes, article, or textbook excerpt here…" rows="8"></textarea>
+
+          <label for="summarize-file">Or upload a file (PDF, DOCX, TXT — max 10MB)</label>
+          <input type="file" id="summarize-file" accept=".pdf,.docx,.txt,.md" />
+
+          <button type="submit" class="btn-primary">
+            <span class="btn-label">Summarize</span>
+          </button>
+        </form>
+
+        <div class="result" id="result-summarize" hidden>
+          <div class="result__header">
+            <span class="eyebrow">Summary</span>
+            <button class="btn-ghost" data-copy-target="summary-output">Copy</button>
+          </div>
+          <div class="result__body markdown" id="summary-output"></div>
+        </div>
+      </section>
+
+      <!-- === Panel 2: Quiz & Flashcards === -->
+      <section class="panel" id="panel-quiz">
+        <h2><span class="eyebrow">02 — Quiz &amp; Flashcard Generator</span></h2>
+        <p class="panel__hint">Give it material and it will generate multiple-choice questions and flashcards you can study with.</p>
+
+        <form id="form-quiz" class="tool-form">
+          <label for="quiz-text">Paste text</label>
+          <textarea id="quiz-text" placeholder="Paste the material to quiz yourself on…" rows="6"></textarea>
+
+          <label for="quiz-file">Or upload a file (PDF, DOCX, TXT — max 10MB)</label>
+          <input type="file" id="quiz-file" accept=".pdf,.docx,.txt,.md" />
+
+          <div class="row">
+            <div class="field">
+              <label for="quiz-difficulty">Difficulty</label>
+              <select id="quiz-difficulty">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="quiz-mcq-count"># Questions</label>
+              <input type="number" id="quiz-mcq-count" min="1" max="20" value="5" />
+            </div>
+            <div class="field">
+              <label for="quiz-card-count"># Flashcards</label>
+              <input type="number" id="quiz-card-count" min="1" max="20" value="5" />
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <span class="btn-label">Generate Quiz</span>
+          </button>
+        </form>
+
+        <div class="result" id="result-quiz" hidden>
+          <div class="quiz-tabs">
+            <button class="quiz-tab active" data-quiz-panel="mcqs">Multiple Choice</button>
+            <button class="quiz-tab" data-quiz-panel="flashcards">Flashcards</button>
+          </div>
+
+          <div class="quiz-panel active" id="quiz-mcqs"></div>
+          <div class="quiz-panel" id="quiz-flashcards"></div>
+        </div>
+      </section>
+
+      <!-- === Panel 3: Chat Tutor === -->
+      <section class="panel" id="panel-chat">
+        <h2><span class="eyebrow">03 — Chat-Based Q&amp;A Tutor</span></h2>
+        <p class="panel__hint">Optionally load material for context, then ask follow-up questions as you study.</p>
+
+        <form id="form-chat-context" class="tool-form tool-form--compact">
+          <label for="chat-text">Paste context material (optional)</label>
+          <textarea id="chat-text" placeholder="Paste notes to ground the tutor's answers…" rows="4"></textarea>
+          <label for="chat-file">Or upload a file (optional)</label>
+          <input type="file" id="chat-file" accept=".pdf,.docx,.txt,.md" />
+          <button type="submit" class="btn-secondary">
+            <span class="btn-label">Start / Reset Session</span>
+          </button>
+          <span class="session-status" id="session-status">No context loaded — general tutoring mode.</span>
+        </form>
+
+        <div class="chat-window" id="chat-window">
+          <div class="chat-empty" id="chat-empty">Ask your first question below to get started.</div>
+        </div>
+
+        <form id="form-chat-message" class="chat-input-row">
+          <input type="text" id="chat-message" placeholder="Ask a question about your material…" autocomplete="off" />
+          <button type="submit" class="btn-primary btn-send">Send</button>
+        </form>
+      </section>
+
+      <!-- === Panel 4: Explain === -->
+      <section class="panel" id="panel-explain">
+        <h2><span class="eyebrow">04 — Step-by-Step Topic Explainer</span></h2>
+        <p class="panel__hint">Enter any topic or concept and get a clear, structured, step-by-step explanation with an example.</p>
+
+        <form id="form-explain" class="tool-form">
+          <label for="explain-topic">Topic or concept</label>
+          <input type="text" id="explain-topic" placeholder="e.g. Newton's Third Law, photosynthesis, recursion…" />
+
+          <div class="field">
+            <label for="explain-level">Explanation level</label>
+            <select id="explain-level">
+              <option value="beginner" selected>Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <span class="btn-label">Explain It</span>
+          </button>
+        </form>
+
+        <div class="result" id="result-explain" hidden>
+          <div class="result__header">
+            <span class="eyebrow">Explanation</span>
+            <button class="btn-ghost" data-copy-target="explain-output">Copy</button>
+          </div>
+          <div class="result__body markdown" id="explain-output"></div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+<div class="loading-overlay" id="loading-overlay" hidden>
+  <div class="loading-spinner"></div>
+  <span id="loading-text">Thinking…</span>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
